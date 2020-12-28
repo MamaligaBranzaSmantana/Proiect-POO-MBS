@@ -17,7 +17,7 @@ class Tabel {
 				string nume;
 				string tip;
 				short dimensiune;
-				string defaultValue;
+				string defaultValue = "NULL";
 
 				string* inregistrari = nullptr;
 				int nrInregistrari = 0;
@@ -38,6 +38,15 @@ class Tabel {
 						}
 					if (k == 0)
 						cout << "No results found!" << endl;
+				}
+
+				~coloana()
+				{
+					if (inregistrari != nullptr)
+					{
+						delete[] inregistrari;
+						inregistrari = nullptr;
+					}
 				}
 		};
 		coloana* c; //vector de coloane in tabela
@@ -75,6 +84,39 @@ class Tabel {
 			}
 		}
 
+		void deleteValues(coloana* c, string numeColoana, string valoare)
+		{
+			int j, k = 0;
+			for (int i = 0; i < nrColoane; i++)
+				if (c[i].nume == numeColoana)
+					j = i;
+			for (int i = 0; i < c[j].nrInregistrari; i++)
+				if (c[j].inregistrari[i] == valoare)
+				{
+					c[j].inregistrari[i] = c[j].defaultValue;
+					k = 1;
+				}
+			if (k == 0)
+				cout << "No results found!" << endl;
+		}
+
+		void select(coloana* c, string numeColoana, string valoare)
+		{
+			int j, k = 0;
+			for (int i = 0; i < nrColoane; i++)
+				if (c[i].nume == numeColoana)
+					j = i;
+			cout << c[j].nume << " " << c[j].tip << " " << c[j].dimensiune << " " << c[j].defaultValue << endl << endl;
+			for (int i = 0; i < c[j].nrInregistrari; i++)
+				if (c[j].inregistrari[i] == valoare)
+				{
+					for (int z = 0; z < nrColoane; z++)
+						cout << c[z].inregistrari[i] << " ";
+					k = 1;
+				}
+			if (k == 0)
+				cout << "No results found!" << endl;
+		}
 };
 
 enum posibilitatiComenzi {
