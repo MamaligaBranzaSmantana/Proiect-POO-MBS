@@ -11,20 +11,42 @@ class Tabel {
 	public:
 		string nume;
 		int nrColoane; //nr de coloane ale tabelei
+
 		class coloana {
 			public:
 				string nume;
 				string tip;
 				short dimensiune;
-				int defaultValue;
+				string defaultValue;
+
+				string* inregistrari = nullptr;
+				int nrInregistrari = 0;
+
+				void insertValues(string valoare)
+				{
+					inregistrari[nrInregistrari++] = valoare;
+				}
+
+				void updateValues(string valoare, string nouaValoare)
+				{
+					int k = 0;
+					for (int i = 0; i < nrInregistrari; i++)
+						if (inregistrari[i] == valoare)
+						{
+							inregistrari[i] = nouaValoare;
+							k = 1;
+						}
+					if (k == 0)
+						cout << "No results found!" << endl;
+				}
 		};
 		coloana* c; //vector de coloane in tabela
 
-		void createTable(string nume, Tabel::coloana* c, int nrColoane) //adauga o tabela in baza de date 
+		void createTable(string nume, coloana* c, int nrColoane) //adauga o tabela in baza de date 
 		{
 			this->nume = nume;
 			this->nrColoane = nrColoane;
-			this->c = new Tabel::coloana[nrColoane];
+			this->c = new coloana[nrColoane];
 			for (int i = 0; i < nrColoane; i++)
 			{
 				this->c[i].nume = c[i].nume;
@@ -52,10 +74,8 @@ class Tabel {
 				cout << "Valoarea prestabilita a coloanei[" << i << "]: " << c[i].defaultValue << endl;
 			}
 		}
-};
 
-Tabel* tabele[20]; //vector de tabele --> aici stocam entitatile 
-int nrTabele = 0; //numarul initial de tabele este 0
+};
 
 enum posibilitatiComenzi {
 	eroare = 0,
@@ -81,6 +101,10 @@ posibilitatiComenzi optiune(char* token)
 
 int main()
 {
+	Tabel* tabele[20]; //pointer la vector de tabele --> aici stocam entitatile 
+	int nrTabele = 0; //numarul initial de tabele este 0
+	Tabel inregistrari[20][20]; //matricea care stocheaza inregistrarile
+
 	//Consideram ca se introduce in consola comanda: "create table angajati( (), () )";
 	//case pt identificarea comenzii
 	cout << "Introduceti comanda dorita: ";
@@ -114,13 +138,14 @@ int main()
 				token = strtok(NULL, " (");
 				//Citim atributele coloanei: nume, tip, dimensiune, defaultValue
 				c[nrColoane].nume = token;
-				c[nrColoane].nume.erase(c[nrColoane].nume.end()-1);
+				c[nrColoane].nume.erase(c[nrColoane].nume.end() - 1);
 				token = strtok(NULL, ", ");
 				c[nrColoane].tip = token;
 				token = strtok(NULL, ", ");
 				c[nrColoane].dimensiune = (short)stoi(token);
 				token = strtok(NULL, ", ");
-				c[nrColoane].defaultValue = (int)stoi(token);
+				c[nrColoane].defaultValue = token;
+				c[nrColoane].defaultValue.erase(c[nrColoane].defaultValue.end() - 1);
 				token = strtok(NULL, "), ");
 				nrColoane++;
 			}
@@ -128,12 +153,27 @@ int main()
 			tabela.createTable(numeTabela, c, nrColoane);
 			tabele[nrTabele] = &tabela;
 			nrTabele++;
+
 			cout << tabele[0]->c[0].defaultValue << endl; // --> merge :) create table angajati ( (id, int, 10, 1) )
 
 			break;
 		}
 
 		case display: {
+
+			token = strtok(NULL, " ");
+			string numeTabela = token;
+
+			int k = 0;
+			for (int i = 0; i < nrTabele && k == 0; i++)
+				if (strcmp(tabele[i]->nume.c_str(), token) == 0)
+				{
+					tabele[i]->displayTable();
+					k = 1;
+				}
+
+			if (k == 0)
+				cout << "Nu exista tabela " << numeTabela << "!" << endl;
 
 			break;
 		}
@@ -150,6 +190,10 @@ int main()
 					k = 1;
 				}
 			
+
+			if (k == 0)
+				cout << "Nu exista tabela " << numeTabela << "!" << endl;
+
 			break;
 		}
 
