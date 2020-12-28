@@ -19,68 +19,43 @@ class Tabel {
 				int defaultValue;
 		};
 		coloana* c; //vector de coloane in tabela
-};
 
-Tabel tabele[20]; //vector de tabele --> aici stocam entitatile 
-int nrTabele = 0; //numarul initial de tabele este 0
-
-void addTable(Tabel newTable) //adauga o tabela in baza de date //Functia asta este de fapt exact ce fac in create tabel deci nu vad rostul clasei createTable 
-{
-	tabele[nrTabele].nume = newTable.nume;
-	for (int i = 0; i < newTable.nrColoane; i++)
-	{
-		tabele[nrTabele].c = new Tabel::coloana[newTable.nrColoane];
-		tabele[nrTabele].c[i].nume = newTable.c[i].nume;
-		tabele[nrTabele].c[i].tip = newTable.c[i].tip;
-		tabele[nrTabele].c[i].dimensiune = newTable.c[i].dimensiune;
-		tabele[nrTabele].c[i].defaultValue = newTable.c[i].defaultValue;
-	}
-	nrTabele++;
-}
-
-class comanda {  //interfata comanda mama -- identifica tipul comenzii
-	public: 
-		virtual void idComanda(string comandaIntrodusa) = 0; //functie virtuala care identifica tipul comenzii --> Daca este select, insert, create etc. (cu un switch)
-};
-
-class createTable : public comanda {
-	public:
-		Tabel t; //declarare tabela
-		
-		void idComanda(string comandaIntrodusa) override //citim numele, tipul, etc. al fiecarei coloane
+		void createTable(string nume, Tabel::coloana* c, int nrColoane) //adauga o tabela in baza de date 
 		{
-
-		}
-		
-		createTable(string nume, Tabel::coloana* c, int nrColoane) //connstructor cu parametrii
-		{
-			t.nume = nume;
-			t.nrColoane = nrColoane;
-			t.c = new Tabel::coloana[nrColoane];
+			this->nume = nume;
+			this->nrColoane = nrColoane;
+			this->c = new Tabel::coloana[nrColoane];
 			for (int i = 0; i < nrColoane; i++)
 			{
-				t.c[i].nume = c[i].nume;
-				t.c[i].tip = c[i].tip;
-				t.c[i].dimensiune = c[i].dimensiune;
-				t.c[i].defaultValue = c[i].defaultValue;
+				this->c[i].nume = c[i].nume;
+				this->c[i].tip = c[i].tip;
+				this->c[i].dimensiune = c[i].dimensiune;
+				this->c[i].defaultValue = c[i].defaultValue;
+			}
+		}
+
+		void dropTable()
+		{
+			nume = ""; //empty string
+			nrColoane = 0; //noul nr de coloane al tabelei va fi 0
+			delete[] c; //dezalocam vectorul de coloane
+		}
+
+		void displayTable()
+		{
+			cout << "Numele tabelei: " << nume << endl;
+			for (int i = 0; i < nrColoane; i++)
+			{
+				cout << "Numele coloanei[" << i << "]: " << c[i].nume << endl;
+				cout << "Tipul coloanei[" << i << "]: " << c[i].tip << endl;
+				cout << "Dimensiunea coloanei[" << i << "]: " << c[i].dimensiune << endl;
+				cout << "Valoarea prestabilita a coloanei[" << i << "]: " << c[i].defaultValue << endl;
 			}
 		}
 };
 
-class dropTable { //ar trebui sa stearga de tot Tabelul t
-	public:
-		dropTable(Tabel* t, int i)
-		{
-			t[i].nume = ""; //empty string
-			t[i].nrColoane = 0; //noul nr de coloane al tabelei va fi 0
-			delete[] t[i].c; //dezalocam vectorul de coloane
-		}
-};
-
-class displayTable {
-	public:
-
-};
+Tabel* tabele[20]; //vector de tabele --> aici stocam entitatile 
+int nrTabele = 0; //numarul initial de tabele este 0
 
 enum posibilitatiComenzi {
 	eroare = 0,
@@ -106,7 +81,7 @@ posibilitatiComenzi optiune(char* token)
 
 int main()
 {
-	//consideram ca se introduce in consola comanda: "create table angajati( (), () )";
+	//Consideram ca se introduce in consola comanda: "create table angajati( (), () )";
 	//case pt identificarea comenzii
 	cout << "Introduceti comanda dorita: ";
 	string s;
@@ -125,6 +100,9 @@ int main()
 	switch (optiune(verif))
 	{
 		case create: {
+
+			Tabel tabela;
+
 			token = strtok(NULL, " ");
 			string numeTabela = token;
 
@@ -136,18 +114,21 @@ int main()
 				token = strtok(NULL, " (");
 				//Citim atributele coloanei: nume, tip, dimensiune, defaultValue
 				c[nrColoane].nume = token;
-				token = strtok(NULL, ",");
+				c[nrColoane].nume.erase(c[nrColoane].nume.end()-1);
+				token = strtok(NULL, ", ");
 				c[nrColoane].tip = token;
-				token = strtok(NULL, ",");
-				c[nrColoane].dimensiune = (short)token;
-				token = strtok(NULL, ",");
-				c[nrColoane].defaultValue = (int)token;
+				token = strtok(NULL, ", ");
+				c[nrColoane].dimensiune = (short)stoi(token);
+				token = strtok(NULL, ", ");
+				c[nrColoane].defaultValue = (int)stoi(token);
 				token = strtok(NULL, "), ");
 				nrColoane++;
 			}
 
-			createTable tabela(numeTabela, c, nrColoane);
-			addTable(tabela.t);
+			tabela.createTable(numeTabela, c, nrColoane);
+			tabele[nrTabele] = &tabela;
+			nrTabele++;
+			cout << tabele[0]->c[0].defaultValue << endl; // --> merge :) create table angajati ( (id, int, 10, 1) )
 
 			break;
 		}
@@ -162,10 +143,10 @@ int main()
 			string numeTabela = token;
 
 			int k = 0;
-			for(int i = 0; i <nrTabele && k == 0; i++)
-				if (strcmp(tabele[i].nume.c_str(), token) == 0)
+			for(int i = 0; i < nrTabele && k == 0; i++)
+				if (strcmp(tabele[i]->nume.c_str(), token) == 0)
 				{
-					dropTable tabela(tabele, i);
+					tabele[i]->dropTable();
 					k = 1;
 				}
 			
