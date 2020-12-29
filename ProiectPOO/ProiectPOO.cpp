@@ -24,6 +24,33 @@ public:
 		string* inregistrari = nullptr;
 		int nrInregistrari = 0;
 	public:
+		coloana()
+		{
+			nume = "Necunoscut";
+			tip = "Necunoscut";
+			dimensiune = 0;
+			defaultValue = "NULL";
+			nrInregistrari = 0;
+			inregistrari = nullptr;
+		}
+		coloana(string nume, string tip, short dimensiune, string defaultValue) :coloana()
+		{
+			this->nume = nume;
+			this->tip = tip;
+			this->dimensiune = dimensiune;
+			this->defaultValue = defaultValue;
+		}
+		coloana(string nume, int nrInregistrari, string* inregistrari) :coloana()
+		{
+			this->nume = nume;
+			if (nrInregistrari > 0 && inregistrari != nullptr)
+			{
+				this->nrInregistrari = nrInregistrari;
+				this->inregistrari = new string[nrInregistrari];
+				for (int i = 0; i < nrInregistrari; i++)
+					this->inregistrari[i] = inregistrari[i];
+			}
+		}
 		string getNume()
 		{
 			return nume;
@@ -115,6 +142,26 @@ public:
 			if (k == 0)
 				cout << "No results found!" << endl;
 		}
+		coloana(const coloana& c)
+		{
+			this->nume = c.nume;
+			this->tip = c.tip;
+			this->dimensiune = c.dimensiune;
+			this->defaultValue = c.defaultValue;
+			if (c.inregistrari != nullptr && c.nrInregistrari > 0)
+			{
+				this->nrInregistrari = c.nrInregistrari;
+				for (int i = 0; i < nrInregistrari; i++)
+				{
+					this->inregistrari[i] = c.inregistrari[i];
+				}
+			}
+			else
+			{
+				this->nrInregistrari = 0;
+				this->inregistrari = nullptr;
+			}
+		}
 		coloana& operator=(const coloana& c)
 		{
 			if (inregistrari != nullptr)
@@ -168,6 +215,61 @@ public:
 			this->dimensiune++;
 			return copie;
 		}
+		bool operator==(coloana c)
+		{
+			if (this->nume != c.nume)
+				return false;
+			else
+			{
+				if (this->tip != c.tip)
+					return false;
+				else
+				{
+					if (this->dimensiune != c.dimensiune)
+						return false;
+					else
+					{
+						if (this->defaultValue != c.defaultValue)
+							return false;
+						else
+						{
+							if (this->nrInregistrari != c.nrInregistrari)
+								return false;
+							else
+							{
+								if (this->inregistrari != c.inregistrari)
+									return false;
+								else
+									return true;
+							}
+						}
+					}
+				}
+
+			}
+		}
+		coloana operator<=(coloana c)
+		{
+			if (this->dimensiune <= c.dimensiune)
+				return *this;
+			else
+				return c;
+		}
+		coloana operator>=(coloana c)
+		{
+			if (this->dimensiune >= c.dimensiune)
+				return *this;
+			else
+				return c;
+		}
+		bool operator!()
+		{
+			return nrInregistrari > 0;
+		}
+		explicit operator string()
+		{
+			return nume;
+		}
 		~coloana()
 		{
 			if (inregistrari != nullptr)
@@ -214,8 +316,6 @@ public:
 		}
 	}
 
-
-
 	void select(coloana* c, string numeColoana, string valoare)
 	{
 		int j, k = 0;
@@ -233,24 +333,61 @@ public:
 		if (k == 0)
 			cout << "No results found!" << endl;
 	}
+	Tabel()
+	{
+		nume = "Necunoscut";
+		nrColoane = 0;
+		c = nullptr;
+	}
+	Tabel(string nume) :Tabel()
+	{
+		this->nume = nume;
+	}
+	Tabel(string nume, int nrColoane, coloana* c)
+	{
+		this->nume = nume;
+		this->nrColoane = nrColoane;
+		this->c = new coloana[nrColoane];
+		for (int i = 0; i < nrColoane; i++)
+			this->c[i] = c[i];
+	}
 	string getNume()
 	{
 		return nume;
 	}
+
 	int getNrColoane()
 	{
 		return nrColoane;
 	}
+
 	void setNume(string nume)
 	{
 		this->nume = nume;
 	}
+
 	void setNrColoane(int nr)
 	{
 		if (nr > 0)
 			nrColoane = nr;
 	}
+	Tabel(const Tabel& t)
+	{
+		this->nume = t.nume;
+		if (c != nullptr && nrColoane > 0)
+		{
+			this->nrColoane = t.nrColoane;
+			this->c = new coloana[t.nrColoane];
+			for (int i = 0; i < nrColoane; i++)
+				this->c[i] = t.c[i];
+		}
+		else
+		{
+			this->nrColoane = 0;
+			this->c = nullptr;
+		}
 
+	}
 	Tabel& operator=(const Tabel& t)
 	{
 		if (c != nullptr)
@@ -296,6 +433,66 @@ public:
 		else
 			throw "Invalid value";
 	}
+	Tabel operator++()
+	{
+
+		Tabel copie1 = *this, copie2 = *this;
+		copie1.nrColoane++;
+		delete[] copie1.c;
+		copie1.c = new coloana[copie1.nrColoane];
+		for (int i = 0; i < copie2.nrColoane; i++)
+		{
+			copie1.c[i] = copie2.c[i];
+		}
+		return copie1;
+	}
+	bool operator==(Tabel t)
+	{
+		if (this->nume != t.nume)
+			return false;
+		else
+		{
+			if (this->nrColoane != t.nrColoane)
+			{
+				return false;
+			}
+			else
+			{
+				int k = 0;
+				for (int i = 0; i < nrColoane; i++)
+				{
+					if (this->c[i] == t.c[i])
+						k++;
+				}
+				if (k == nrColoane)
+					return true;
+				else
+					return false;
+			}
+		}
+	}
+	Tabel operator<=(Tabel t)
+	{
+		if (this->nrColoane <= t.nrColoane)
+			return *this;
+		else
+			return t;
+	}
+	Tabel operator>=(Tabel t)
+	{
+		if (this->nrColoane >= t.nrColoane)
+			return *this;
+		else
+			return t;
+	}
+	bool operator!()
+	{
+		return nrColoane > 0;
+	}
+	explicit operator string()
+	{
+		return nume;
+	}
 	~Tabel()
 	{
 		if (c != nullptr)
@@ -333,12 +530,12 @@ void deleteValues(Tabel t, Tabel::coloana* c, string numeColoana, string valoare
 
 ostream& operator<<(ostream& out, Tabel t)
 {
-	out << "nume: " << t.nume << endl;
-	out << "Numar Coloane: " << t.nrColoane << endl;
+	out << "nume: " << t.getNume() << endl;
+	out << "Numar Coloane: " << t.getNrColoane() << endl;
 	out << "Coloane: ";
 	if (t.c != nullptr)
 	{
-		for (int i = 0; i < t.nrColoane; i++)
+		for (int i = 0; i < t.getNrColoane(); i++)
 		{
 			out << t.c[i] << " ";
 		}
@@ -363,13 +560,13 @@ ostream& operator<<(ostream& out, Tabel::coloana c)
 }
 istream& operator>>(istream& in, Tabel& t)
 {
-	cout << "Nume = "; in >> t.nume;
-	cout << "Numar Coloane = "; in >> t.nrColoane;
+	cout << "Nume = "; string x; in >> x; t.setNume(x);
+	cout << "Numar Coloane = "; int y; in >> y; t.setNrColoane(y);
 	if (t.c != nullptr)
 	{
 		delete[] t.c;
 	}
-	if (t.nrColoane > 0)
+	if (t.getNrColoane() > 0)
 	{
 		t.c = new Tabel::coloana[t.getNrColoane()];
 		for (int i = 0; i < t.getNrColoane(); i++)
@@ -418,7 +615,9 @@ enum posibilitatiComenzi {
 	eroare = 0,
 	create = 1,
 	drop = 2,
-	display = 3
+	display = 3,
+	insert = 4,
+	select = 5
 };
 
 posibilitatiComenzi optiune(char* token)
@@ -428,6 +627,8 @@ posibilitatiComenzi optiune(char* token)
 		{"create table", create},
 		{"drop table", drop},
 		{"display table", display},
+		{"insert into", insert},
+		{"select", select}
 	};
 
 	auto iterator = m.find(s);
@@ -532,6 +733,43 @@ int main()
 			cout << "Nu exista tabela " << numeTabela << "!" << endl;
 
 		break;
+	}
+
+	case insert:
+	{
+		//token = strtok(NULL, " ");
+		//string numeTabela = token;
+		//int k = 0;
+		//for (int i = 0; i < nrTabele && k == 0; i++)
+		//	if (strcmp(tabele[i]->getNume().c_str(), token) == 0)
+		//	{
+		//		k = i;
+		//	}
+
+		//if (k == 0)
+		//{
+		//	cout << "Nu exista tabela " << numeTabela << "!" << endl;
+		//	break;
+		//}
+		//else
+		//{
+		//	int j = 0;
+		//	token = strtok(NULL, " ,()");
+		//	string* p = new string[tabele[k]->getNrColoane()];
+		//	while (token != NULL)
+		//	{
+		//		p[j] = token;
+		//		token = strtok(NULL, " ,()");
+		//		j++;
+		//	}
+		//	
+		//	int nr_inregistrari;
+		//}
+	}
+
+	case select:
+	{
+
 	}
 
 	default: {
