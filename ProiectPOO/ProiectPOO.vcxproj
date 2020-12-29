@@ -139,7 +139,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="coloana.cpp" />
     <ClCompile Include="ProiectPOO.cpp" />
+    <ClCompile Include="Tabel.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Tabel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
