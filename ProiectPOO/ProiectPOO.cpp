@@ -65,18 +65,22 @@ int main()
 		token = strtok(NULL, "(");
 		while (token != NULL)
 		{
-			token = strtok(NULL, " (");
 			//Citim atributele coloanei: nume, tip, dimensiune, defaultValue
-			c[nrColoane].setNume(token);
-			c[nrColoane].getNume().erase(c[nrColoane].getNume().end() - 1);
+			token = strtok(NULL, " ()");
+			if (token == NULL)
+				break;
+			string ss = token;
+			ss.erase(ss.end() - 1);
+			c[nrColoane].setNume(ss);
 			token = strtok(NULL, ", ");
 			c[nrColoane].setTip(token);
 			token = strtok(NULL, ", ");
 			c[nrColoane].setDimensiune((short)stoi(token));
 			token = strtok(NULL, ", ");
 			c[nrColoane].setDefaultValue(token);
-			c[nrColoane].getDefaultValue().erase(c[nrColoane].getDefaultValue().end() - 1);
-			token = strtok(NULL, "), ");
+			ss = token;
+			ss.erase(ss.end() - 1);
+			c[nrColoane].setDefaultValue(ss);
 			nrColoane++;
 		}
 
@@ -84,7 +88,7 @@ int main()
 		tabele[nrTabele] = &tabela;
 		nrTabele++;
 
-		cout << tabele[0]->c[0].getDefaultValue() << endl; // --> merge :) create table angajati ( (id, int, 10, 1) )
+		cout << tabele[0]->c[2].getDefaultValue() << endl; // --> merge :) create table angajati ( (id, number, 10, 1), (nume, varchar2, 10, Anonim), (salariu, number, 4, -) )
 
 		break;
 	}
