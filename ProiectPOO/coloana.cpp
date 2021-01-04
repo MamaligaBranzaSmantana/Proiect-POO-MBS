@@ -104,12 +104,21 @@ void Tabel::coloana::setInregistrari(string* inr, int nrI)
 		}
 	}
 }
-void Tabel::coloana::insertValues(string valoare)
+void Tabel::coloana::insertValues(string valoare, string filename, string filenamereal)
 {
 	inregistrari[nrInregistrari++] = valoare;
+	ofstream f(filename, ios::binary | ios::app);
+	int length = valoare.length();
+	f.write((char*)&length, sizeof(length));
+	f.write(valoare.c_str(), length + 1);
+	f.close();//pana aici a fost ca sa scriem binar, in continuare scriem in alt fisier valorile efective
+	ofstream s;
+	s.open(filenamereal, ios::out | ios::app);
+	s << valoare << endl;
+	s.close();
 }
 
-void Tabel::coloana::updateValues(string valoare, string nouaValoare)
+void Tabel::coloana::updateValues(string valoare, string nouaValoare, string filename, string filenamereal)
 {
 	int k = 0;
 	for (int i = 0; i < nrInregistrari; i++)
@@ -120,6 +129,25 @@ void Tabel::coloana::updateValues(string valoare, string nouaValoare)
 		}
 	if (k == 0)
 		cout << "No results found!" << endl;
+	else
+	{
+		ofstream f(filename, ios::binary | ios::trunc);
+		f.write((char*)&nrInregistrari, sizeof(nrInregistrari));
+		for (int i = 0; i < nrInregistrari; i++)
+		{
+			f.write((char*)&inregistrari[i], sizeof(inregistrari[i]));
+		}
+		f.close();
+		ofstream s;
+		s.open(filenamereal, ios::out | ios::trunc);
+		s << nrInregistrari << endl;
+		for (int i = 0; i < nrInregistrari; i++)
+		{
+			s << inregistrari[i] << " ";
+		}
+		s.close();
+
+	}
 }
 Tabel::coloana::coloana(const coloana& c)
 {

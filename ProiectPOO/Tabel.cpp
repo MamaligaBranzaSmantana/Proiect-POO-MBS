@@ -1,6 +1,6 @@
 #include "Tabel.h"
 
-void Tabel::createTable(string nume, coloana c[], int nrColoane) //adauga o tabela in baza de date 
+void Tabel::createTable(string nume, coloana* c, int nrColoane) //adauga o tabela in baza de date
 {
 	this->nume = nume;
 	this->nrColoane = nrColoane;
@@ -20,33 +20,50 @@ void Tabel::dropTable()
 	nrColoane = 0; //noul nr de coloane al tabelei va fi 0
 	delete[] c; //dezalocam vectorul de coloane
 }
-
 void Tabel::displayTable()
 {
-	cout << "Numele tabelei: " << nume << endl;
-	for (int i = 0; i < nrColoane; i++)
+	string numeFisier = nume + ".txt";
+	ofstream f(numeFisier, ios::out);
+	f << "Numele tabelei: " << this->getNume() << endl;
+	for (int i = 0; i < this->getNrColoane(); i++)
 	{
-		cout << "Numele coloanei[" << i << "]: " << c[i].getNume() << endl;
-		cout << "Tipul coloanei[" << i << "]: " << c[i].getTip() << endl;
-		cout << "Dimensiunea coloanei[" << i << "]: " << c[i].getDimensiune() << endl;
-		cout << "Valoarea prestabilita a coloanei[" << i << "]: " << c[i].getDefaultValue() << endl;
+		f << "Numele coloanei[" << i << "]: " << this->c[i].getNume() << endl;
+		f << "Tipul coloanei[" << i << "]: " << this->c[i].getTip() << endl;
+		f << "Dimensiunea coloanei[" << i << "]: " << this->c[i].getDimensiune() << endl;
+		f << "Valoarea prestabilita a coloanei[" << i << "]: " << this->c[i].getDefaultValue() << endl;
 	}
 }
 
-void Tabel::select(coloana* c, string numeColoana, string valoare)
+void Tabel::select(Tabel::coloana* c, string* numeColoane, string coloanaa, int nrColoanesel, string valoare, string filename)
 {
 	int j, k = 0;
+	ofstream f;
+	f.open(filename, ios::out | ios::trunc);
 	for (int i = 0; i < nrColoane; i++)
-		if (c[i].getNume() == numeColoana)
+		if (c[i].getNume() == coloanaa)
 			j = i;
-	cout << c[j].getNume() << " " << c[j].getTip() << " " << c[j].getDimensiune() << " " << c[j].getDefaultValue() << endl << endl;
+	f << c[j].getNume() << endl << endl;
 	for (int i = 0; i < c[j].getNrInregistrari(); i++)
 		if (c[j].getInregistrari()[i] == valoare)
 		{
 			for (int z = 0; z < nrColoane; z++)
-				cout << c[z].getInregistrari()[i] << " ";
+			{
+				if (numeColoane[0] == "all")
+					f << c[z].getInregistrari()[i] << " ";
+				else
+				{
+					for (int ii = 0; ii < nrColoanesel; ii++)
+						if (c[z].getNume() == numeColoane[ii])
+						{
+							f << c[z].getInregistrari()[i] << " ";
+						}
+				}
+			}
 			k = 1;
+			f << endl;
 		}
+
+	f.close();
 	if (k == 0)
 		cout << "No results found!" << endl;
 }
@@ -257,24 +274,51 @@ istream& operator>>(istream& in, Tabel& t)
 	}
 	return in;
 }
-void deleteValues(Tabel t, Tabel::coloana* c, string numeColoana, string valoare)
+void deleteValues(Tabel t, Tabel::coloana* c, string numeColoana, string valoare, string filename, string filenamereal)
 {
 	int j, k = 0;
 	for (int i = 0; i < t.getNrColoane(); i++)
 		if (c[i].getNume() == numeColoana)
 			j = i;
+	int ctr = 0;
 	for (int i = 0; i < c[j].getNrInregistrari(); i++)
 		if (c[j].getInregistrari()[i] == valoare)
 		{
+			ctr++;
 			k = 1;
-			string* zz;
-			zz = new string[t.getNrColoane()];
-			for (int i = 0; i < t.getNrColoane(); i++)
-			{
-				zz[i] = c[i].getDefaultValue();
-			}
-			c[i].setInregistrari(zz, t.getNrColoane());
 		}
+	string* cc; int ctr2 = 0;
+	cc = new string[c[j].getNrInregistrari() - ctr];
+	for (int i = 0; i < c[j].getNrInregistrari(); i++)
+		if (c[j].getInregistrari()[i] != valoare)
+		{
+			cc[ctr2++] = c[j].getInregistrari()[i];
+		}
+	c->setInregistrari(cc, ctr2 - 1);
 	if (k == 0)
 		cout << "No results found!" << endl;
+	else
+	{
+		ofstream f(filename, ios::binary | ios::trunc);
+		for (int j = 0; j < t.nrColoane; j++)
+		{
+			f.write((char*)c[j].getNrInregistrari(), sizeof(c[j].getNrInregistrari()));
+			for (int i = 0; i < c[j].getNrInregistrari(); i++)
+			{
+				f.write((char*)&c[j].getInregistrari()[i], sizeof(c[j].getInregistrari()[i]));
+			}
+		}
+		f.close();
+		ofstream s;
+		s.open(filenamereal, ios::out | ios::trunc);
+		for (int j = 0; j < t.nrColoane; j++)
+		{
+			s << c[j].getNrInregistrari() << endl;
+			for (int i = 0; i < c[j].getNrInregistrari(); i++)
+			{
+				s << c[j].getInregistrari()[i] << " ";
+			}
+		}
+		s.close();
+	}
 }

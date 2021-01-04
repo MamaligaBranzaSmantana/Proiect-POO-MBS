@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <string.h>
-
+#include <fstream>
 using namespace std;
 class Tabel
 {
@@ -37,8 +37,8 @@ public:
 		void setNrInregistrari(int nr);
 		string* getInregistrari();
 		void setInregistrari(string* inr, int nrI);
-		void insertValues(string valoare);
-		void updateValues(string valoare, string nouaValoare);
+		void insertValues(string valoare, string filename, string filenamereal);
+		void updateValues(string valoare, string nouaValoare, string filename, string filenamereal);
 		coloana(const coloana& c);
 		coloana& operator=(const coloana& c);
 		string& operator[](int index);
@@ -58,7 +58,7 @@ public:
 	void createTable(string nume, coloana c[], int nrColoane); //adauga o tabela in baza de date
 	void dropTable();
 	void displayTable();
-	void select(coloana* c, string numeColoana, string valoare);
+	void select(coloana* c, string* numeColoane, string coloanaa, int nrColoane, string valoare, string filename);
 	Tabel();
 	Tabel(string nume);
 	Tabel(string nume, int nrColoane, coloana* c);
@@ -79,5 +79,5 @@ public:
 	~Tabel();
 	friend ostream& operator<<(ostream&, Tabel);
 	friend istream& operator>>(istream&, Tabel&);
-	friend void deleteValues(Tabel t, coloana* c, string numeColoana, string valoare);
+	friend void deleteValues(Tabel t, coloana* c, string numeColoana, string valoare, string filename, string filenamereal);
 };
