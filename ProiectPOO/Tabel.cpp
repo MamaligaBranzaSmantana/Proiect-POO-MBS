@@ -24,7 +24,7 @@ void Tabel::dropTable()
 }
 void Tabel::displayTable()
 {
-	string numeFisier = nume + ".txt";
+	string numeFisier = nume + "_structura.txt";
 	ofstream f(numeFisier, ios::out);
 	f << "Numele tabelei: " << this->getNume() << endl;
 	for (int i = 0; i < this->getNrColoane(); i++)

@@ -111,12 +111,25 @@ void Tabel::coloana::setInregistrari(string* inr, int nrI)
 }
 void Tabel::coloana::insertValues(string valoare, string filename, string filenamereal)
 {
-	inregistrari[nrInregistrari++] = valoare;
+    if (inregistrari == nullptr)
+    {
+        inregistrari = new string[nrInregistrari + 1];
+        this->inregistrari[nrInregistrari] = valoare;
+        nrInregistrari++;
+    }
+    else
+    {
+        string* copie = new string[nrInregistrari + 1];
+        for (int i = 0; i < nrInregistrari; i++)
+            copie[i] = inregistrari[i];
+        copie[nrInregistrari] = valoare;
+        this->setInregistrari(copie, nrInregistrari + 1);
+    }
 	ofstream f(filename, ios::binary | ios::app);
 	int length = valoare.length();
 	f.write((char*)&length, sizeof(length));
 	f.write(valoare.c_str(), length + 1);
-	f.close();//pana aici a fost ca sa scriem binar, in continuare scriem in alt fisier valorile efective
+	f.close(); //pana aici a fost ca sa scriem binar, in continuare scriem in alt fisier valorile efective
 	ofstream s;
 	s.open(filenamereal, ios::out | ios::app);
 	s << valoare << endl;

@@ -74,7 +74,7 @@ int main()
                 token = strtok(NULL, " ");
                 string numeTabela = token;
 
-                string numeFisier = numeTabela + ".txt"; //numele fisierului asociat tabelei
+                string numeFisier = numeTabela + "_structura.txt"; //numele fisierului asociat tabelei
                 ofstream f(numeFisier);
 
                 int nrColoane = 0;
@@ -165,19 +165,40 @@ int main()
                         int j = 0;
                         while (token != NULL)
                         {
-                            token = strtok(NULL, " (,)");
                             tabele[i].c[j++].insertValues(token, numefisier, numefisierreal);
+                            token = strtok(NULL, " (,)");
                         }
                         k = 1;
-
                     }
-                // insert into angajati ( (1,Ion,4000) )
+                // insert into angajati ( (1, Ion, 4000) )
                 if (k == 0)
                     cout << "Nu exista tabela " << numeTabela << "!" << endl;
+                break;
             }
 
             case deletee: {
-
+                token = strtok(NULL, " ");
+                string numeTabela = token;
+                string numefisierreal = numeTabela + ".txt";
+                ofstream f(numefisierreal);
+                string numefisier = numeTabela + ".bin";
+                ofstream g(numefisier);
+                int k = 0;
+                token = strtok(NULL, " "); //where
+                for (int i = 0; i < nrTabele && k == 0; i++)
+                    if (tabele[i].getNume() == numeTabela)
+                    {
+                        token = strtok(NULL, " (,)"); //nume_coloana
+                        string nume_coloana = token; 
+                        token = strtok(NULL, " ="); //valoare
+                        string valoare = token;
+                        deleteValues(tabele[i], tabele[i].c, nume_coloana, valoare, numefisier, numefisierreal);
+                        k = 1;
+                    }
+                // delete from angajati where salariu = 4000 
+                if (k == 0)
+                    cout << "Nu exista tabela " << numeTabela << "!" << endl;
+                break;
             }
 
             default: {
