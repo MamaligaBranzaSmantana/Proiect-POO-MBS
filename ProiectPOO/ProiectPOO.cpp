@@ -153,7 +153,10 @@ int main()
             case insert: {
                 token = strtok(NULL, " ");
                 string numeTabela = token;
-
+                string numefisierreal = numeTabela + ".txt";
+                ofstream f(numefisierreal);
+                string numefisier = numeTabela + ".bin";
+                ofstream g(numefisier);
                 int k = 0;
                 for (int i = 0; i < nrTabele && k == 0; i++)
                     if (strcmp(tabele[i].getNume().c_str(), token) == 0)
@@ -163,12 +166,12 @@ int main()
                         while (token != NULL)
                         {
                             token = strtok(NULL, " (,)");
-                            tabele[i].c[j++].insertValues(token);
+                            tabele[i].c[j++].insertValues(token, numefisier, numefisierreal);
                         }
                         k = 1;
 
                     }
-
+                // insert into angajati ( (1,Ion,4000) )
                 if (k == 0)
                     cout << "Nu exista tabela " << numeTabela << "!" << endl;
             }
@@ -207,3 +210,5 @@ int main()
     }
     return 0;
 }
+
+
