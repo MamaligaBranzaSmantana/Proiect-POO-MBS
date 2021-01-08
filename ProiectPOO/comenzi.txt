@@ -1,0 +1,3 @@
+create table angajati ( (id, number, 10, 1), (nume, varchar2, 10, Anonim), (salariu, number, 4, -) )
+display table angajati
+insert into angajati ( (1, Ion, 4000) )
