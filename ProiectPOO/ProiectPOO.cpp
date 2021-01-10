@@ -57,7 +57,65 @@ int main()
     char* token = strtok(comandaIntrodusa, " "); //extrage proiectPOO.exe
 
     if (strcmp(token, "proiectPOO.exe") != 0)
-        cout << "Comanda introdusa gresit! Pentru a porni aplicatia rulati: proiectPOO.exe";
+    {
+        //inserare date fisiere .csv
+        if (strcmp(token, "import") == 0)
+        {
+
+            token = strtok(NULL, " ");
+            string numeTabela = token;
+            string extensie1 = ".txt";
+            string numefisierreal = token + extensie1;
+            ofstream f(numefisierreal);
+            string numefisier = numeTabela + ".bin";
+            ofstream g(numefisier);
+            //
+            token = strtok(NULL, " ");
+            string extensie2 = ".csv";
+            string fisiercsv = token;
+            string numefisiercsv = token + extensie2;
+            ifstream h(numefisiercsv);
+            h.open(numefisiercsv, ios::in);
+            //
+            int k = 0;
+            for (int i = 0; i < nrTabele && k == 0; i++)
+                if (tabele[i].getNume() == numeTabela)//verificam daca exista tabela
+                {
+                    //extragere valori
+                    while (!h.eof())
+                    {
+                        string linie;
+                        string delimiter = ",";
+                        //format csv ales este:
+                        //a11,a12,a13,...
+                        //a21,a22,a23,...
+                        //a31,a32,a33...
+                        //...
+                        string buffer;
+                        getline(h, linie);
+                        int j = 0;//contor coloane
+                        while (buffer.length() != linie.length() || buffer != linie)
+                        {
+                            buffer = linie.substr(0, linie.find(delimiter));
+                            tabele[i].c[j++].insertValues(token, numefisier, numefisierreal);
+                            linie.erase(0, linie.find(delimiter) + 1);
+                            j++;
+                        }
+                    }
+                    h.close();
+                    k = 1;
+                }
+            if (k == 0)
+            {
+                cout << "Nu exista tabela " << numeTabela << "!" << endl;
+            }
+        }
+        else
+        {
+            cout << "Comanda introdusa gresit! Pentru a porni aplicatia rulati: proiectPOO.exe";
+        }
+    }
+        
     else {
 
         token = strtok(NULL, " "); //numele fisierului de unde se citesc comenzile
